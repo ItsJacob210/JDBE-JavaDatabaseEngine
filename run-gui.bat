@@ -1,0 +1,3 @@
+@echo off
+echo Starting JavaDBEngine GUI...
+gradlew.bat runGUI --console=plain
