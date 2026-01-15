@@ -1,4 +1,4 @@
-# JavaDatabaseEngine
+p# JavaDatabaseEngine
 
 JDBE is a work-in-progress relational database engine implemented entirely in Java. It features a custom functional pipeline query language, page-based disk storage, B+ tree indexing, query optimization, & transactions with write-ahead logging and crash recovery. JDBE is currently being tested under 35 thousand records spanned across two tables.
 

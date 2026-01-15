@@ -16,11 +16,13 @@ public class TableHeap implements Iterable<Tuple> {
     private final Schema schema;
     private final List<Integer> pageIds;
     private int firstPageId;
+    private int currentInsertPageIndex; //track current page for inserts
     
     public TableHeap(BufferPool bufferPool, Schema schema) throws IOException {
         this.bufferPool = bufferPool;
         this.schema = schema;
         this.pageIds = new ArrayList<>();
+        this.currentInsertPageIndex = 0;
         
         //create first page
         Page page = bufferPool.newPage();
@@ -37,14 +39,16 @@ public class TableHeap implements Iterable<Tuple> {
         this.pageIds = new ArrayList<>();
         this.firstPageId = firstPageId;
         this.pageIds.add(firstPageId);
+        this.currentInsertPageIndex = 0;
     }
     
     /**
      * Insert a tuple into the table.
      */
     public RecordId insertTuple(Tuple tuple) throws IOException {
-        //try to insert into existing pages
-        for (int pageId : pageIds) {
+        //try to insert into current page
+        if (currentInsertPageIndex < pageIds.size()) {
+            int pageId = pageIds.get(currentInsertPageIndex);
             Page page = bufferPool.fetchPage(pageId);
             HeapPage heapPage = new HeapPage(page, schema);
             
@@ -54,13 +58,16 @@ public class TableHeap implements Iterable<Tuple> {
                 return new RecordId(pageId, slotNum);
             }
             
+            //current page is full, move to next
             bufferPool.unpinPage(pageId, false);
+            currentInsertPageIndex++;
         }
         
         //need to allocate a new page
         Page newPage = bufferPool.newPage();
         int newPageId = newPage.getPageId();
         pageIds.add(newPageId);
+        currentInsertPageIndex = pageIds.size() - 1;
         
         HeapPage heapPage = new HeapPage(newPage, schema);
         int slotNum = heapPage.insertTuple(tuple);

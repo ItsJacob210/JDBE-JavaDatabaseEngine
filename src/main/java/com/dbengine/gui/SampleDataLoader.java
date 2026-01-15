@@ -65,7 +65,7 @@ public class SampleDataLoader {
         columnMap.put("age", 2);
         columnMap.put("active", 3);
         
-        int total = 10000;
+        int total = 100000;
         //generate 10,000 users
         for (int i = 1; i <= total; i++) {
             String firstName = FIRST_NAMES[rand.nextInt(FIRST_NAMES.length)];
@@ -106,7 +106,7 @@ public class SampleDataLoader {
         columnMap.put("price", 2);
         columnMap.put("stock", 3);
         
-        int total = 25000;
+        int total = 250000;
         //generate 25,000 products
         for (int i = 1; i <= total; i++) {
             //pick random category and product
