@@ -65,8 +65,8 @@ public class SampleDataLoader {
         columnMap.put("age", 2);
         columnMap.put("active", 3);
         
-        int total = 100000;
-        //generate 10,000 users
+        int total = 300000;
+        //generate 300,000 users
         for (int i = 1; i <= total; i++) {
             String firstName = FIRST_NAMES[rand.nextInt(FIRST_NAMES.length)];
             String lastName = LAST_NAMES[rand.nextInt(LAST_NAMES.length)];
@@ -83,8 +83,8 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 1000 records
-            if (callback != null && i % 1000 == 0) {
+            //report progress every 5000 records
+            if (callback != null && i % 5000 == 0) {
                 callback.onProgress(i, total, "Loading users...");
                 Thread.sleep(1); //small delay to allow GUI updates
             }
@@ -93,7 +93,7 @@ public class SampleDataLoader {
         if (callback != null) {
             callback.onProgress(total, total, "Users loaded");
         }
-        System.out.println("Loaded 10,000 users");
+        System.out.println("Loaded 300,000 users");
     }
     
     public static void loadProductsData(TableHeap tableHeap, Schema schema) throws IOException, InterruptedException {
@@ -107,8 +107,8 @@ public class SampleDataLoader {
         columnMap.put("price", 2);
         columnMap.put("stock", 3);
         
-        int total = 250000;
-        //generate 25,000 products
+        int total = 1000000;
+        //generate 1,000,000 products
         for (int i = 1; i <= total; i++) {
             //pick random category and product
             String[] category = PRODUCTS[rand.nextInt(PRODUCTS.length)];
@@ -137,8 +137,8 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 2500 records  
-            if (callback != null && i % 2500 == 0) {
+            //report progress every 10000 records  
+            if (callback != null && i % 10000 == 0) {
                 callback.onProgress(i, total, "Loading products...");
                 Thread.sleep(1); //small delay to allow GUI updates
             }
@@ -147,6 +147,6 @@ public class SampleDataLoader {
         if (callback != null) {
             callback.onProgress(total, total, "Products loaded");
         }
-        System.out.println("Loaded 25,000 products");
+        System.out.println("Loaded 1,000,000 products");
     }
 }

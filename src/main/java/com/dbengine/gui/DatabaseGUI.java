@@ -107,10 +107,10 @@ public class DatabaseGUI extends JFrame {
                     get(); //check for exceptions
                     
                     outputArea.append("Loaded sample data successfully\n");
-                    outputArea.append("  - 100,000 users inserted\n");
-                    outputArea.append("  - 250,000 products inserted\n");
+                    outputArea.append("  - 300,000 users inserted\n");
+                    outputArea.append("  - 1,000,000 products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Sample data loaded (350,000 records total)", SUCCESS);
+                    setStatus("Sample data loaded (1,300,000 records total)", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("Error loading sample data: " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
@@ -553,10 +553,10 @@ public class DatabaseGUI extends JFrame {
                 try {
                     get(); //check for exceptions
                     outputArea.append("✓ Data reloaded successfully\n");
-                    outputArea.append("  - 100,000 users inserted\n");
-                    outputArea.append("  - 250,000 products inserted\n");
+                    outputArea.append("  - 300,000 users inserted\n");
+                    outputArea.append("  - 1,000,000 products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Data reloaded (350,000 records total)", SUCCESS);
+                    setStatus("Data reloaded (1,300,000 records total)", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("ERROR: Failed to reload data - " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
@@ -664,9 +664,7 @@ public class DatabaseGUI extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            //use default look and feel
-        }
+        } catch (Exception e) {}
         
         SwingUtilities.invokeLater(() -> new DatabaseGUI());
     }

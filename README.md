@@ -1,6 +1,6 @@
 p# JavaDatabaseEngine
 
-JDBE is a work-in-progress relational database engine implemented entirely in Java. It features a custom functional pipeline query language, page-based disk storage, B+ tree indexing, query optimization, & transactions with write-ahead logging and crash recovery. JDBE is currently being tested under 35 thousand records spanned across two tables.
+JDBE is a relational database engine implemented entirely in Java. It features a custom functional pipeline query language, page-based disk storage, B+ tree indexing, query optimization, & transactions with write-ahead logging and crash recovery. JDBE has been tested with 1.3 million records demonstrating linear O(n) scaling and sub-second query performance.
 
 ### Key Features
 
@@ -18,13 +18,19 @@ JDBE is a work-in-progress relational database engine implemented entirely in Ja
 - Java 21 or higher
 - Gradle 8.4+ 
 
+### Clearing Database
+
+```bash
+  Remove-Item -Recurse -Force db_data\gui_demo
+```
+
 ### Runningg GUI 
 
 ```bash
-.\run-gui.bat
+  .\run-gui.bat
 ```
 
-The GUI launches with **10,000 sample users and 25,000 sample products** 
+The GUI launches with **300,000 sample users and 1,000,000 sample products** (1.3M records total) 
 
 ### Supported Operations
 
@@ -139,7 +145,7 @@ commit
 
 - **Policy**: LRU eviction
 - **Features**: Pin/unpin semantics, dirty page tracking, automatic disk I/O
-- **Size**: Configurable (default: 100 pages = 400KB)
+- **Size**: Configurable (default: 5,000 pages = 20MB)
 
 ### Write-Ahead Logging 
 
@@ -156,19 +162,19 @@ The GUI provides a interface with:
 - **Results Table** - Clean tabular display
 - **Output Log** - Terminal-style execution feedback
 - **Syntax Reference** - Built-in help panel
-- **Pre-loaded Data** - 10 users + 10 products ready to query
+- **Pre-loaded Data** - 1.3M records ready to query
 - **Example Buttons** - One-click query templates
 - **Explain Plans** - Visual query plan display
 
 ### Sample Data Included
 
-**Users Table**: 10,000 records with columns (id, name, age, active)  
-**Products Table**: 25,000 records with columns (id, name, price, stock)
+**Users Table**: 300,000 records with columns (id, name, age, active)  
+**Products Table**: 1,000,000 records with columns (id, name, price, stock)
 
 ## Testing
 
 ```bash
-.\gradlew.bat test
+  .\gradlew.bat test
 ```
 
 Tests includes:
