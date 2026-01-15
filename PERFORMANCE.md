@@ -14,13 +14,13 @@ This file contains performance measurements of JDBE under various dataset sizes 
 - **Users**: 100,000 records
 - **Products**: 250,000 records
 - **Total**: 350,000 records
-- **Load Time**: ~3-4 seconds
+- **Load Time**: ~2-3 seconds
 
 ### Large Dataset (1.3M records)
 - **Users**: 300,000 records
 - **Products**: 1,000,000 records
 - **Total**: 1,300,000 records
-- **Load Time**: ~40-50 seconds
+- **Load Time**: ~7-8 seconds
 
 ## Query Performance Results
 
