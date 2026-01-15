@@ -29,7 +29,7 @@ import java.util.List;
  * Main database engine that coordinates all components.
  */
 public class Database {
-    private static final int BUFFER_POOL_SIZE = 100;
+    private static final int BUFFER_POOL_SIZE = 5000; //increased for large datasets (~20MB buffer)
     
     private final Path dbDirectory;
     private final DiskManager diskManager;

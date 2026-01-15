@@ -105,11 +105,12 @@ public class DatabaseGUI extends JFrame {
             protected void done() {
                 try {
                     get(); //check for exceptions
-                    outputArea.append("✓ Loaded sample data successfully\n");
-                    outputArea.append("  - 10,000 users inserted\n");
-                    outputArea.append("  - 25,000 products inserted\n");
+                    
+                    outputArea.append("Loaded sample data successfully\n");
+                    outputArea.append("  - 100,000 users inserted\n");
+                    outputArea.append("  - 250,000 products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Sample data loaded (35,000 records total)", SUCCESS);
+                    setStatus("Sample data loaded (350,000 records total)", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("Error loading sample data: " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
@@ -552,10 +553,10 @@ public class DatabaseGUI extends JFrame {
                 try {
                     get(); //check for exceptions
                     outputArea.append("✓ Data reloaded successfully\n");
-                    outputArea.append("  - 10,000 users inserted\n");
-                    outputArea.append("  - 25,000 products inserted\n");
+                    outputArea.append("  - 100,000 users inserted\n");
+                    outputArea.append("  - 250,000 products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Data reloaded (35,000 records total)", SUCCESS);
+                    setStatus("Data reloaded (350,000 records total)", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("ERROR: Failed to reload data - " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");

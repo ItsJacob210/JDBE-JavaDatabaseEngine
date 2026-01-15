@@ -54,11 +54,11 @@ public class SampleDataLoader {
          "Desk Fan", "Storage Box", "Cable Sleeve", "LED Strip", "Clock"}
     };
     
-    public static void loadUsersData(TableHeap tableHeap, Schema schema) throws IOException {
+    public static void loadUsersData(TableHeap tableHeap, Schema schema) throws IOException, InterruptedException {
         loadUsersData(tableHeap, schema, null);
     }
     
-    public static void loadUsersData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException {
+    public static void loadUsersData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException, InterruptedException {
         Map<String, Integer> columnMap = new HashMap<>();
         columnMap.put("id", 0);
         columnMap.put("name", 1);
@@ -83,9 +83,10 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 500 records
-            if (callback != null && i % 500 == 0) {
+            //report progress every 1000 records
+            if (callback != null && i % 1000 == 0) {
                 callback.onProgress(i, total, "Loading users...");
+                Thread.sleep(1); //small delay to allow GUI updates
             }
         }
         
@@ -95,11 +96,11 @@ public class SampleDataLoader {
         System.out.println("Loaded 10,000 users");
     }
     
-    public static void loadProductsData(TableHeap tableHeap, Schema schema) throws IOException {
+    public static void loadProductsData(TableHeap tableHeap, Schema schema) throws IOException, InterruptedException {
         loadProductsData(tableHeap, schema, null);
     }
     
-    public static void loadProductsData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException {
+    public static void loadProductsData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException, InterruptedException {
         Map<String, Integer> columnMap = new HashMap<>();
         columnMap.put("id", 0);
         columnMap.put("name", 1);
@@ -136,9 +137,10 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 1000 records
-            if (callback != null && i % 1000 == 0) {
+            //report progress every 2500 records  
+            if (callback != null && i % 2500 == 0) {
                 callback.onProgress(i, total, "Loading products...");
+                Thread.sleep(1); //small delay to allow GUI updates
             }
         }
         
