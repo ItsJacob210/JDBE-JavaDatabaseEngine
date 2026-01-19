@@ -50,56 +50,56 @@ JDBE supports five dataset sizes selectable via the GUI dropdown menu:
 
 ### Small Dataset (1K records)
 
-|| Query | Operation | Rows Returned | Time | Throughput |
-||-------|-----------|---------------|------|------------|
-|| `users \|> project(id, name)` | Full scan | 100 | ~1ms | Instant |
-|| `products \|> project(id, name, price)` | Full scan | 900 | ~1ms | Instant |
-|| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~70 | ~1ms | Instant |
-|| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | ~220 | ~1ms | Instant |
+| Query | Operation | Rows Returned | Time | Throughput |
+|-------|-----------|---------------|------|------------|
+| `users \|> project(id, name)` | Full scan | 100 | ~1ms | Instant |
+| `products \|> project(id, name, price)` | Full scan | 900 | ~1ms | Instant |
+| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~70 | ~1ms | Instant |
+| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | ~220 | ~1ms | Instant |
 
 **Notes**: Small dataset provides instant feedback for all operations. Ideal for quick syntax testing and demonstrations.
 
 ### Medium Dataset (35k records)
 
-|| Query | Operation | Rows Returned | Time | Throughput |
-||-------|-----------|---------------|------|------------|
-|| `users \|> project(id, name, age)` | Full scan | 10,000 | ~10ms | 1M rows/sec |
-|| `products \|> project(id, name, price)` | Full scan | 25,000 | ~22ms | 1.1M rows/sec |
-|| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~8,700 | ~12ms | Fast |
-|| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | ~6,000 | ~25ms | Fast |
-|| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | ~15ms | Fast |
-|| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | ~30ms | Fast |
+| Query | Operation | Rows Returned | Time | Throughput |
+|-------|-----------|---------------|------|------------|
+| `users \|> project(id, name, age)` | Full scan | 10,000 | ~10ms | 1M rows/sec |
+| `products \|> project(id, name, price)` | Full scan | 25,000 | ~22ms | 1.1M rows/sec |
+| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~8,700 | ~12ms | Fast |
+| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | ~6,000 | ~25ms | Fast |
+| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | ~15ms | Fast |
+| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | ~30ms | Fast |
 
 ### Large Dataset (350k records)
 
-|| Query | Operation | Rows Returned | Time | Throughput |
-||-------|-----------|---------------|------|------------|
-|| `users \|> project(id, name, age)` | Full scan | 100,000 | 94ms | 1.06M rows/sec |
-|| `products \|> project(id, name, price)` | Full scan | 250,000 | 218ms | 1.15M rows/sec |
-|| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | 87,605 | 99ms | 885k rows/sec |
-|| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | 59,874 | 204ms | 293k rows/sec |
-|| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | 96ms | Fast |
-|| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | 310ms | Fast |
+| Query | Operation | Rows Returned | Time | Throughput |
+|-------|-----------|---------------|------|------------|
+| `users \|> project(id, name, age)` | Full scan | 100,000 | 94ms | 1.06M rows/sec |
+| `products \|> project(id, name, price)` | Full scan | 250,000 | 218ms | 1.15M rows/sec |
+| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | 87,605 | 99ms | 885k rows/sec |
+| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | 59,874 | 204ms | 293k rows/sec |
+| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | 96ms | Fast |
+| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | 310ms | Fast |
 
 ### XL Dataset (1.3M records) - Default
 
-|| Query | Operation | Rows Returned | Time | Throughput |
-||-------|-----------|---------------|------|------------|
-|| `users \|> project(id, name)` | Full scan | 300,000 | 1,868ms | 161k rows/sec |
-|| `products \|> project(id, name, price)` | Full scan | 1,000,000 | 2,179ms | 459k rows/sec |
-|| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | 240,872 | 1,003ms | 1M rows/sec |
-|| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | 263,098 | 384ms | 781k rows/sec |
-|| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | 416ms | Fast |
-|| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | 1,231ms | Fast |
+| Query | Operation | Rows Returned | Time | Throughput |
+|-------|-----------|---------------|------|------------|
+| `users \|> project(id, name)` | Full scan | 300,000 | 1,868ms | 161k rows/sec |
+| `products \|> project(id, name, price)` | Full scan | 1,000,000 | 2,179ms | 459k rows/sec |
+| `products \|> filter(price > 50) \|> sort(price desc)` | Filter + sort | 240,872 | 1,003ms | 1M rows/sec |
+| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | 263,098 | 384ms | 781k rows/sec |
+| `users \|> filter(active == true) \|> ... \|> limit(5)` | Complex query | 5 | 416ms | Fast |
+| `products \|> filter(stock > 10) \|> ... \|> limit(5)` | Complex query | 5 | 1,231ms | Fast |
 
 ### XXL Dataset (5M records)
 
-|| Query | Operation | Rows Returned | Time | Throughput |
-||-------|-----------|---------------|------|------------|
-|| `users \|> project(id, name, age)` | Full scan | 500,000 | 3,086ms | 162k rows/sec |
-|| `products \|> project(id, name, price)` | Full scan | 4,500,000 | 3,949ms | 1.14M rows/sec |
-|| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~435,000 | ~1,800ms | 277k rows/sec |
-|| `products \|> filter(price > 50)` | Filter only | ~1,080,000 | ~1,200ms | 900k rows/sec |
+| Query | Operation | Rows Returned | Time | Throughput |
+|-------|-----------|---------------|------|------------|
+| `users \|> project(id, name, age)` | Full scan | 500,000 | 3,086ms | 162k rows/sec |
+| `products \|> project(id, name, price)` | Full scan | 4,500,000 | 3,949ms | 1.14M rows/sec |
+| `users \|> filter(age > 25) \|> sort(age desc)` | Filter + sort | ~435,000 | ~1,800ms | 277k rows/sec |
+| `products \|> filter(price > 50)` | Filter only | ~1,080,000 | ~1,200ms | 900k rows/sec |
 
 **Notes**: Even at 5M records, full table scans complete in under 4 seconds, demonstrating excellent linear scaling.
 
