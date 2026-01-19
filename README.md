@@ -1,6 +1,6 @@
 p# JavaDatabaseEngine
 
-JDBE is a relational database engine implemented entirely in Java. It features a custom functional pipeline query language, page-based disk storage, B+ tree indexing, query optimization, & transactions with write-ahead logging and crash recovery. JDBE has been tested with 1.3 million records demonstrating linear O(n) scaling and sub-second query performance.
+JDBE is a relational database engine implemented entirely in Java. It features a custom functional pipeline query language, page-based disk storage, B+ tree indexing, query optimization, & transactions with write-ahead logging and crash recovery. JDBE has been tested with up to 5 million records, achieving load times of 35 seconds for 5M records (142k records/sec) and consistent query performance of 3-4 seconds for full table scans. See `PERFORMANCE.md` for detailed benchmarks.
 
 ### Key Features
 
@@ -24,9 +24,21 @@ JDBE is a relational database engine implemented entirely in Java. It features a
   .\run-gui.bat
 ```
 
-The GUI launches with **300,000 sample users and 1,000,000 sample products** (1.3M records total)
+The GUI launches with **300,000 sample users and 1,000,000 sample products** (1.3M records total) by default.
 
-To clear the database before running (removes all existing data):
+### Dynamic Dataset Selection
+
+The GUI includes a dataset selector dropdown menu allowing you to switch between different dataset sizes without restarting:
+
+- **Small (1K)**: 100 users + 900 products - Loads in 240ms
+- **Medium (35K)**: 10,000 users + 25,000 products - Loads in 274ms
+- **Large (350K)**: 100,000 users + 250,000 products - Loads in 607ms
+- **XL (1.3M)**: 300,000 users + 1,000,000 products - Loads in 7.2 seconds (Default)
+- **XXL (5M)**: 500,000 users + 4,500,000 products - Loads in 35 seconds
+
+Click **"Reload Data ▼"** to select a dataset size. The database automatically cleans up and reloads with the selected size.
+
+To manually clear the database
 
 ```bash
   Remove-Item -Recurse -Force db_data\gui_demo
@@ -54,12 +66,22 @@ To clear the database before running (removes all existing data):
 
 ### Transactions
 
+Multi-line transaction support with automatic persistence:
+
 ```sql
 begin
-users |> filter(id == 1) |> modify(balance = 100)
+users |> filter(id == 1) |> modify(age = 30)
 products |> filter(id == 5) |> modify(stock = 50)
 commit
 ```
+
+Single-line modify operations also work and automatically flush to disk:
+
+```sql
+users |> filter(id == 1) |> modify(age = 30)
+```
+
+Both approaches guarantee data persistence across restarts.
 
 ## Architecture
 
@@ -157,20 +179,34 @@ commit
 
 ## GUI Features
 
-The GUI provides a interface with:
+The GUI provides a full-featured interface with:
 
-- **Query Editor** - Syntax-highlighted input area
-- **Results Table** - Clean tabular display
-- **Output Log** - Terminal-style execution feedback
-- **Syntax Reference** - Built-in help panel
-- **Pre-loaded Data** - 1.3M records ready to query
-- **Example Buttons** - One-click query templates
+- **Query Editor** - Multi-line input area with syntax highlighting
+- **Results Table** - Clean tabular display with formatted headers
+- **Output Log** - Terminal-style execution feedback with query metrics
+- **Syntax Reference** - Built-in help panel with examples
+- **Dynamic Dataset Selection** - Switch between 1K to 5M records on-the-fly
+- **Example Buttons** - One-click query templates that adapt to active table
 - **Explain Plans** - Visual query plan display
+- **Transaction Support** - Multi-line BEGIN/COMMIT blocks
+- **Real-time Progress** - Loading indicators during data operations
 
-### Sample Data Included
+### Sample Data
 
-**Users Table**: 300,000 records with columns (id, name, age, active)  
-**Products Table**: 1,000,000 records with columns (id, name, price, stock)
+The GUI includes pre-generated realistic data across two tables:
+
+**Users Table**: (id, name, age, active)  
+- Randomized names from 50 first names × 50 last names
+- Ages 18-82, 75% active users
+- Scales from 100 to 500,000 users
+
+**Products Table**: (id, name, price, stock)  
+- 4 product categories with realistic variants
+- Price ranges based on product type
+- Stock levels 0-99
+- Scales from 900 to 4,500,000 products
+
+All data generation uses a fixed seed for reproducibility.
 
 ## Testing
 

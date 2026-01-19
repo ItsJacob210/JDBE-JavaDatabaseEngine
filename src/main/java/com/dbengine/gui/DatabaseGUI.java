@@ -83,8 +83,12 @@ public class DatabaseGUI extends JFrame {
         setStatus("Loading sample data (" + currentDatasetSize + ")...", PRIMARY);
         
         SwingWorker<Void, String> worker = new SwingWorker<>() {
+            private long startTime;
+            
             @Override
             protected Void doInBackground() throws Exception {
+                startTime = System.currentTimeMillis();
+                
                 SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), currentDatasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
                 
@@ -106,6 +110,7 @@ public class DatabaseGUI extends JFrame {
             protected void done() {
                 try {
                     get(); //check for exceptions
+                    long duration = System.currentTimeMillis() - startTime;
                     
                     int userCount = switch (currentDatasetSize) {
                         case "1K" -> 100;
@@ -125,9 +130,12 @@ public class DatabaseGUI extends JFrame {
                     };
                     int totalRecords = userCount + productCount;
                     
+                    String timeStr = formatLoadTime(duration);
+                    
                     outputArea.append("Loaded sample data successfully (" + currentDatasetSize + ")\n");
                     outputArea.append("  - " + String.format("%,d", userCount) + " users inserted\n");
                     outputArea.append("  - " + String.format("%,d", productCount) + " products inserted\n");
+                    outputArea.append("  - " + String.format("%,d", totalRecords) + " records loaded in " + timeStr + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
                     setStatus("Sample data loaded: " + String.format("%,d", totalRecords) + " records (" + currentDatasetSize + ")", SUCCESS);
                 } catch (Exception e) {
@@ -213,8 +221,8 @@ public class DatabaseGUI extends JFrame {
         
         String[] datasetSizes = {"1K", "35K", "350K", "1.3M", "5M"};
         String[] datasetLabels = {
-            "Demo (1K records)",
-            "Small (35K records)",
+            "Small (1K records)",
+            "Medium (35K records)",
             "Large (350K records)",
             "XL (1.3M records)",
             "XXL (5M records)"
@@ -582,6 +590,7 @@ public class DatabaseGUI extends JFrame {
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             private int userCount = 0;
             private int productCount = 0;
+            private long startTime;
             
             @Override
             protected Void doInBackground() throws Exception {
@@ -618,6 +627,9 @@ public class DatabaseGUI extends JFrame {
                 database = new Database("gui_demo");
                 createSampleTables();
                 
+                //start timer after cleanup, before data loading
+                startTime = System.currentTimeMillis();
+                
                 //load with progress
                 SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), datasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
@@ -640,10 +652,15 @@ public class DatabaseGUI extends JFrame {
             protected void done() {
                 try {
                     get(); //check for exceptions
+                    long duration = System.currentTimeMillis() - startTime;
                     int totalRecords = userCount + productCount;
+                    
+                    String timeStr = formatLoadTime(duration);
+                    
                     outputArea.append("✓ Data reloaded successfully (" + datasetSize + ")\n");
                     outputArea.append("  - " + String.format("%,d", userCount) + " users inserted\n");
                     outputArea.append("  - " + String.format("%,d", productCount) + " products inserted\n");
+                    outputArea.append("  - " + String.format("%,d", totalRecords) + " records loaded in " + timeStr + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
                     setStatus("Data loaded: " + String.format("%,d", totalRecords) + " records (" + datasetSize + ")", SUCCESS);
                 } catch (Exception e) {
@@ -660,6 +677,15 @@ public class DatabaseGUI extends JFrame {
     private void setStatus(String message, Color color) {
         statusLabel.setText(message);
         statusLabel.setForeground(color);
+    }
+    
+    private String formatLoadTime(long milliseconds) {
+        if (milliseconds < 1000) {
+            return milliseconds + " ms";
+        } else {
+            double seconds = milliseconds / 1000.0;
+            return String.format("%.2f seconds", seconds);
+        }
     }
     
     private String getSyntaxHelp() {
