@@ -23,6 +23,7 @@ public class DatabaseGUI extends JFrame {
     private Database database;
     private TableHeap usersTableHeap;
     private TableHeap productsTableHeap;
+    private String currentDatasetSize = "1.3M";
     
     //ui components
     private JTextArea queryInput;
@@ -79,15 +80,15 @@ public class DatabaseGUI extends JFrame {
     }
     
     private void loadSampleDataAfterUI() {
-        setStatus("Loading sample data...", PRIMARY);
+        setStatus("Loading sample data (" + currentDatasetSize + ")...", PRIMARY);
         
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
-                SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), 
+                SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), currentDatasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
                 
-                SampleDataLoader.loadProductsData(productsTableHeap, productsTableHeap.getSchema(),
+                SampleDataLoader.loadProductsData(productsTableHeap, productsTableHeap.getSchema(), currentDatasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
                 
                 return null;
@@ -106,11 +107,29 @@ public class DatabaseGUI extends JFrame {
                 try {
                     get(); //check for exceptions
                     
-                    outputArea.append("Loaded sample data successfully\n");
-                    outputArea.append("  - 300,000 users inserted\n");
-                    outputArea.append("  - 1,000,000 products inserted\n");
+                    int userCount = switch (currentDatasetSize) {
+                        case "1K" -> 100;
+                        case "35K" -> 10000;
+                        case "350K" -> 100000;
+                        case "1.3M" -> 300000;
+                        case "5M" -> 500000;
+                        default -> 300000;
+                    };
+                    int productCount = switch (currentDatasetSize) {
+                        case "1K" -> 900;
+                        case "35K" -> 25000;
+                        case "350K" -> 250000;
+                        case "1.3M" -> 1000000;
+                        case "5M" -> 4500000;
+                        default -> 1000000;
+                    };
+                    int totalRecords = userCount + productCount;
+                    
+                    outputArea.append("Loaded sample data successfully (" + currentDatasetSize + ")\n");
+                    outputArea.append("  - " + String.format("%,d", userCount) + " users inserted\n");
+                    outputArea.append("  - " + String.format("%,d", productCount) + " products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Sample data loaded (1,300,000 records total)", SUCCESS);
+                    setStatus("Sample data loaded: " + String.format("%,d", totalRecords) + " records (" + currentDatasetSize + ")", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("Error loading sample data: " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");
@@ -188,8 +207,37 @@ public class DatabaseGUI extends JFrame {
         JButton clearBtn = createStyledButton("Clear", ERROR);
         clearBtn.addActionListener(e -> clearResults());
         
-        JButton loadDataBtn = createStyledButton("Reload Data", new Color(230, 126, 34));
-        loadDataBtn.addActionListener(e -> reloadSampleData());
+        //reload data button with dropdown menu
+        JButton loadDataBtn = createStyledButton("Reload Data ▼", new Color(230, 126, 34));
+        JPopupMenu datasetMenu = new JPopupMenu();
+        
+        String[] datasetSizes = {"1K", "35K", "350K", "1.3M", "5M"};
+        String[] datasetLabels = {
+            "Demo (1K records)",
+            "Small (35K records)",
+            "Large (350K records)",
+            "XL (1.3M records)",
+            "XXL (5M records)"
+        };
+        
+        javax.swing.ButtonGroup menuGroup = new javax.swing.ButtonGroup();
+        
+        for (int i = 0; i < datasetSizes.length; i++) {
+            String size = datasetSizes[i];
+            String label = datasetLabels[i];
+            JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(label);
+            menuItem.setSelected(size.equals(currentDatasetSize));
+            menuItem.addActionListener(e -> {
+                currentDatasetSize = size;
+                reloadSampleData(size);
+            });
+            menuGroup.add(menuItem);
+            datasetMenu.add(menuItem);
+        }
+        
+        loadDataBtn.addActionListener(e -> {
+            datasetMenu.show(loadDataBtn, 0, loadDataBtn.getHeight());
+        });
         
         buttonPanel.add(executeBtn);
         buttonPanel.add(explainBtn);
@@ -527,28 +575,54 @@ public class DatabaseGUI extends JFrame {
         setStatus("Results cleared", PRIMARY);
     }
     
-    private void reloadSampleData() {
-        setStatus("Reloading data...", PRIMARY);
-        outputArea.append("Clearing old data and reloading...\n");
+    private void reloadSampleData(String datasetSize) {
+        setStatus("Reloading data (" + datasetSize + ")...", PRIMARY);
+        outputArea.append("Clearing old data and reloading (" + datasetSize + ")...\n");
         
         SwingWorker<Void, String> worker = new SwingWorker<>() {
+            private int userCount = 0;
+            private int productCount = 0;
+            
             @Override
             protected Void doInBackground() throws Exception {
-                //re-create table heaps (clears existing data)
-                Schema usersSchema = database.getCatalog().getTable("users").orElseThrow().getSchema();
-                Schema productsSchema = database.getCatalog().getTable("products").orElseThrow().getSchema();
+                //calculate record counts for reporting
+                userCount = switch (datasetSize) {
+                    case "1K" -> 100;
+                    case "35K" -> 10000;
+                    case "350K" -> 100000;
+                    case "1.3M" -> 300000;
+                    case "5M" -> 500000;
+                    default -> 300000;
+                };
+                productCount = switch (datasetSize) {
+                    case "1K" -> 900;
+                    case "35K" -> 25000;
+                    case "350K" -> 250000;
+                    case "1.3M" -> 1000000;
+                    case "5M" -> 4500000;
+                    default -> 1000000;
+                };
                 
-                usersTableHeap = new TableHeap(database.getBufferPool(), usersSchema);
-                productsTableHeap = new TableHeap(database.getBufferPool(), productsSchema);
+                //shutdown database to close file handles
+                publish("Closing database...");
+                database.shutdown();
                 
-                database.getPlanner().registerTableHeap("users", usersTableHeap);
-                database.getPlanner().registerTableHeap("products", productsTableHeap);
+                //delete database files to reclaim space
+                publish("Clearing database files...");
+                java.nio.file.Path dbDir = database.getDbDirectory();
+                java.nio.file.Files.deleteIfExists(dbDir.resolve("data.db"));
+                java.nio.file.Files.deleteIfExists(dbDir.resolve("wal.log"));
+                
+                //reinitialize database
+                publish("Reinitializing database...");
+                database = new Database("gui_demo");
+                createSampleTables();
                 
                 //load with progress
-                SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), 
+                SampleDataLoader.loadUsersData(usersTableHeap, usersTableHeap.getSchema(), datasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
                 
-                SampleDataLoader.loadProductsData(productsTableHeap, productsTableHeap.getSchema(),
+                SampleDataLoader.loadProductsData(productsTableHeap, productsTableHeap.getSchema(), datasetSize,
                     (current, total, msg) -> publish(msg + " " + current + "/" + total));
                 
                 return null;
@@ -566,11 +640,12 @@ public class DatabaseGUI extends JFrame {
             protected void done() {
                 try {
                     get(); //check for exceptions
-                    outputArea.append("✓ Data reloaded successfully\n");
-                    outputArea.append("  - 300,000 users inserted\n");
-                    outputArea.append("  - 1,000,000 products inserted\n");
+                    int totalRecords = userCount + productCount;
+                    outputArea.append("✓ Data reloaded successfully (" + datasetSize + ")\n");
+                    outputArea.append("  - " + String.format("%,d", userCount) + " users inserted\n");
+                    outputArea.append("  - " + String.format("%,d", productCount) + " products inserted\n");
                     outputArea.append("-".repeat(60) + "\n\n");
-                    setStatus("Data reloaded (1,300,000 records total)", SUCCESS);
+                    setStatus("Data loaded: " + String.format("%,d", totalRecords) + " records (" + datasetSize + ")", SUCCESS);
                 } catch (Exception e) {
                     outputArea.append("ERROR: Failed to reload data - " + e.getMessage() + "\n");
                     outputArea.append("-".repeat(60) + "\n\n");

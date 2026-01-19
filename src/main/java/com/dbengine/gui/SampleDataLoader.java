@@ -55,24 +55,35 @@ public class SampleDataLoader {
     };
     
     public static void loadUsersData(TableHeap tableHeap, Schema schema) throws IOException, InterruptedException {
-        loadUsersData(tableHeap, schema, null);
+        loadUsersData(tableHeap, schema, "1.3M", null);
     }
     
-    public static void loadUsersData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException, InterruptedException {
+    public static void loadUsersData(TableHeap tableHeap, Schema schema, String datasetSize, ProgressCallback callback) throws IOException, InterruptedException {
         Map<String, Integer> columnMap = new HashMap<>();
         columnMap.put("id", 0);
         columnMap.put("name", 1);
         columnMap.put("age", 2);
         columnMap.put("active", 3);
         
-        int total = 300000;
-        //generate 300,000 users
+        //determine user count based on dataset size
+        int total = switch (datasetSize) {
+            case "1K" -> 100;
+            case "35K" -> 10000;
+            case "350K" -> 100000;
+            case "1.3M" -> 300000;
+            case "5M" -> 500000;
+            default -> 300000;
+        };
+        
+        //calculate progress update interval
+        int updateInterval = Math.max(1, total / 60);
+        
         for (int i = 1; i <= total; i++) {
             String firstName = FIRST_NAMES[rand.nextInt(FIRST_NAMES.length)];
             String lastName = LAST_NAMES[rand.nextInt(LAST_NAMES.length)];
             String fullName = firstName + " " + lastName;
-            int age = 18 + rand.nextInt(65); //ages 18-82
-            boolean active = rand.nextDouble() < 0.75; //75% active
+            int age = 18 + rand.nextInt(65);
+            boolean active = rand.nextDouble() < 0.75;
             
             Object[] values = new Object[4];
             values[0] = i;
@@ -83,32 +94,42 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 5000 records
-            if (callback != null && i % 5000 == 0) {
+            if (callback != null && i % updateInterval == 0) {
                 callback.onProgress(i, total, "Loading users...");
-                Thread.sleep(1); //small delay to allow GUI updates
+                Thread.sleep(1);
             }
         }
         
         if (callback != null) {
             callback.onProgress(total, total, "Users loaded");
         }
-        System.out.println("Loaded 300,000 users");
+        System.out.println("Loaded " + total + " users");
     }
     
     public static void loadProductsData(TableHeap tableHeap, Schema schema) throws IOException, InterruptedException {
-        loadProductsData(tableHeap, schema, null);
+        loadProductsData(tableHeap, schema, "1.3M", null);
     }
     
-    public static void loadProductsData(TableHeap tableHeap, Schema schema, ProgressCallback callback) throws IOException, InterruptedException {
+    public static void loadProductsData(TableHeap tableHeap, Schema schema, String datasetSize, ProgressCallback callback) throws IOException, InterruptedException {
         Map<String, Integer> columnMap = new HashMap<>();
         columnMap.put("id", 0);
         columnMap.put("name", 1);
         columnMap.put("price", 2);
         columnMap.put("stock", 3);
         
-        int total = 1000000;
-        //generate 1,000,000 products
+        //determine product count based on dataset size
+        int total = switch (datasetSize) {
+            case "1K" -> 900;
+            case "35K" -> 25000;
+            case "350K" -> 250000;
+            case "1.3M" -> 1000000;
+            case "5M" -> 4500000;
+            default -> 1000000;
+        };
+        
+        //calculate progress update interval
+        int updateInterval = Math.max(1, total / 100);
+        
         for (int i = 1; i <= total; i++) {
             //pick random category and product
             String[] category = PRODUCTS[rand.nextInt(PRODUCTS.length)];
@@ -116,7 +137,7 @@ public class SampleDataLoader {
             
             //add variant suffix for uniqueness
             String fullName = productName;
-            if (i % 100 > 10) { //most products get variants
+            if (i % 100 > 10) {
                 String[] variants = {"Pro", "Plus", "Elite", "Standard", "Basic", "Premium", "Deluxe"};
                 fullName = productName + " " + variants[rand.nextInt(variants.length)];
             }
@@ -137,16 +158,15 @@ public class SampleDataLoader {
             Tuple tuple = new Tuple(values, columnMap);
             tableHeap.insertTuple(tuple);
             
-            //report progress every 10000 records  
-            if (callback != null && i % 10000 == 0) {
+            if (callback != null && i % updateInterval == 0) {
                 callback.onProgress(i, total, "Loading products...");
-                Thread.sleep(1); //small delay to allow GUI updates
+                Thread.sleep(1);
             }
         }
         
         if (callback != null) {
             callback.onProgress(total, total, "Products loaded");
         }
-        System.out.println("Loaded 1,000,000 products");
+        System.out.println("Loaded " + total + " products");
     }
 }

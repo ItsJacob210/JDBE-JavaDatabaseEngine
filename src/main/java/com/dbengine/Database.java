@@ -157,6 +157,10 @@ public class Database {
         return catalog;
     }
     
+    public Path getDbDirectory() {
+        return dbDirectory;
+    }
+    
     /**
      * Get the planner (for registering table heaps and indexes).
      */
