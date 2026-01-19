@@ -1,6 +1,7 @@
 package com.dbengine.exec;
 
 import com.dbengine.lang.ast.Expr;
+import com.dbengine.storage.RecordId;
 import com.dbengine.storage.TableHeap;
 import com.dbengine.storage.Tuple;
 
@@ -50,7 +51,14 @@ public class ModifyOperator implements Operator {
         }
         
         //update in storage
-        tableHeap.updateTuple(tuple.getRecordId(), modified);
+        RecordId rid = tuple.getRecordId();
+        if (rid == null) {
+            throw new RuntimeException("Tuple has null RecordId!");
+        }
+        boolean success = tableHeap.updateTuple(rid, modified);
+        if (!success) {
+            throw new RuntimeException("Failed to update tuple at " + rid);
+        }
         modifiedCount++;
         
         return modified;

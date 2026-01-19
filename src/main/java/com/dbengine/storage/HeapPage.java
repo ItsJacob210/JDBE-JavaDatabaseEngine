@@ -151,9 +151,57 @@ public class HeapPage {
      * Update a tuple at a specific slot.
      */
     public boolean updateTuple(int slotNum, Tuple tuple) {
-        deleteTuple(slotNum);
-        int newSlot = insertTuple(tuple);
-        return newSlot != -1;
+        byte[] tupleData = serializeTuple(tuple);
+        byte[] pageData = page.getBytes();
+        ByteBuffer buffer = ByteBuffer.wrap(pageData);
+        
+        buffer.position(1);
+        int tupleCount = buffer.getInt();
+        
+        if (slotNum >= tupleCount) {
+            return false;
+        }
+        
+        //get old tuple info
+        buffer.position(HEADER_SIZE + slotNum * SLOT_SIZE);
+        int oldOffset = buffer.getInt();
+        int oldLength = buffer.getInt();
+        
+        if (oldOffset == -1) {
+            return false;  //slot is deleted
+        }
+        
+        //if same size, update in place
+        if (tupleData.length == oldLength) {
+            System.arraycopy(tupleData, 0, pageData, oldOffset, tupleData.length);
+            page.setData(pageData);
+            return true;
+        }
+        
+        //different size: need to allocate new space
+        buffer.position(5);
+        int freeSpacePtr = buffer.getInt();
+        
+        int requiredSpace = tupleData.length;
+        if (freeSpacePtr - requiredSpace < HEADER_SIZE + (tupleCount * SLOT_SIZE)) {
+            return false;  
+        }
+        
+        //write new tuple data
+        int newOffset = freeSpacePtr - tupleData.length;
+        System.arraycopy(tupleData, 0, pageData, newOffset, tupleData.length);
+        
+        //update slot entry to point to new location
+        buffer.position(HEADER_SIZE + slotNum * SLOT_SIZE);
+        buffer.putInt(newOffset);
+        buffer.putInt(tupleData.length);
+        
+        //update free space pointer in header
+        buffer.position(5);
+        buffer.putInt(newOffset);
+        
+        page.setData(pageData);
+        return true;
     }
     
     private byte[] serializeTuple(Tuple tuple) {

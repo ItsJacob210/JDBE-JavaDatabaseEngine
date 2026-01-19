@@ -421,25 +421,39 @@ public class DatabaseGUI extends JFrame {
     }
     
     private void executeQuery() {
-        String query = queryInput.getText().trim();
-        if (query.isEmpty()) {
+        String input = queryInput.getText().trim();
+        if (input.isEmpty()) {
             setStatus("Please enter a query", ERROR);
             return;
         }
         
+        //split by newlines '\n'to handle multiline transactions
+        String[] queries = input.split("\n");
+        
         try {
-            long startTime = System.currentTimeMillis();
-            QueryResult result = database.execute(query);
-            long duration = System.currentTimeMillis() - startTime;
+            QueryResult lastResult = null;
+            long totalDuration = 0;
             
-            outputArea.append("Query: " + query + "\n");
-            outputArea.append("Status: " + result.message() + "\n");
-            outputArea.append("Execution time: " + duration + "ms\n");
-            outputArea.append("Rows returned: " + result.tuples().size() + "\n");
-            outputArea.append("-".repeat(60) + "\n\n");
+            for (String query : queries) {
+                query = query.trim();
+                if (query.isEmpty()) continue;
+                
+                long startTime = System.currentTimeMillis();
+                lastResult = database.execute(query);
+                long duration = System.currentTimeMillis() - startTime;
+                totalDuration += duration;
+                
+                outputArea.append("Query: " + query + "\n");
+                outputArea.append("Status: " + lastResult.message() + "\n");
+                outputArea.append("Execution time: " + duration + "ms\n");
+                outputArea.append("Rows returned: " + lastResult.tuples().size() + "\n");
+                outputArea.append("-".repeat(60) + "\n\n");
+            }
             
-            displayResults(result.tuples());
-            setStatus("Query executed successfully (" + duration + "ms)", SUCCESS);
+            if (lastResult != null) {
+                displayResults(lastResult.tuples());
+                setStatus("Query executed successfully (" + totalDuration + "ms)", SUCCESS);
+            }
             
         } catch (Exception e) {
             outputArea.append("ERROR: " + e.getMessage() + "\n");

@@ -18,19 +18,20 @@ JDBE is a relational database engine implemented entirely in Java. It features a
 - Java 21 or higher
 - Gradle 8.4+ 
 
-### Clearing Database
-
-```bash
-  Remove-Item -Recurse -Force db_data\gui_demo
-```
-
-### Runningg GUI 
+### Running GUI 
 
 ```bash
   .\run-gui.bat
 ```
 
-The GUI launches with **300,000 sample users and 1,000,000 sample products** (1.3M records total) 
+The GUI launches with **300,000 sample users and 1,000,000 sample products** (1.3M records total)
+
+To clear the database before running (removes all existing data):
+
+```bash
+  Remove-Item -Recurse -Force db_data\gui_demo
+  .\run-gui.bat
+``` 
 
 ### Supported Operations
 

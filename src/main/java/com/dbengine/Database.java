@@ -127,6 +127,12 @@ public class Database {
             
             physicalPlan.close();
             
+            //flush dirty pages for modify/remove operations
+            boolean isModifyOrRemove = containsModifyOrRemove(optimized);
+            if (isModifyOrRemove && currentTransaction == null) {
+                bufferPool.flushAllPages();
+            }
+            
             return new QueryResult("Success", results);
             
         } catch (Exception e) {
@@ -207,6 +213,28 @@ public class Database {
                 prefix + "Modify(" + m.updates().keySet() + ")\n" + explainNode(m.input(), indent + 1);
             case com.dbengine.lang.ast.RemoveNode r ->
                 prefix + "Remove\n" + explainNode(r.input(), indent + 1);
+        };
+    }
+    
+    /**
+     * Check if query tree contains modify or remove operations.
+     */
+    private boolean containsModifyOrRemove(QueryNode node) {
+        if (node instanceof com.dbengine.lang.ast.ModifyNode || 
+            node instanceof com.dbengine.lang.ast.RemoveNode) {
+            return true;
+        }
+        
+        return switch (node) {
+            case com.dbengine.lang.ast.SourceNode s -> false;
+            case com.dbengine.lang.ast.FilterNode f -> containsModifyOrRemove(f.input());
+            case com.dbengine.lang.ast.ProjectNode p -> containsModifyOrRemove(p.input());
+            case com.dbengine.lang.ast.SortNode s -> containsModifyOrRemove(s.input());
+            case com.dbengine.lang.ast.LimitNode l -> containsModifyOrRemove(l.input());
+            case com.dbengine.lang.ast.TakeNode t -> containsModifyOrRemove(t.input());
+            case com.dbengine.lang.ast.SkipNode s -> containsModifyOrRemove(s.input());
+            case com.dbengine.lang.ast.ModifyNode m -> true;
+            case com.dbengine.lang.ast.RemoveNode r -> true;
         };
     }
     
